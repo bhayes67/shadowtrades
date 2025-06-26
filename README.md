@@ -90,7 +90,7 @@ No API key required - all endpoints are public!
 
 ### Basic Usage
 
-1. **Select a Drug** - Use the sidebar dropdown to choose a commodity
+1. **Select a Drug** - Click a row in the main table to choose a commodity
 2. **View Buy Locations** - See all terminals selling that drug with current prices
 3. **View Sell Locations** - Find the best places to offload your cargo
 4. **Check Optimal Route** - The app calculates the most profitable buy/sell combination

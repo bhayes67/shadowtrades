@@ -8,6 +8,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 import time
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 
 # Page config
 st.set_page_config(
@@ -99,13 +100,10 @@ def main():
     # Find illegal drugs
     illegal_drugs = find_illegal_drugs(data["commodities"])
     
-    # Sidebar drug selector
+    # Prepare drug list and selection state
     drug_names = [d["name"] for d in illegal_drugs]
-    selected_drug = st.sidebar.selectbox(
-        "Select Drug to Analyze",
-        drug_names,
-        index=0
-    )
+    if "selected_drug" not in st.session_state:
+        st.session_state["selected_drug"] = drug_names[0]
     
     # Main content area
     col1, col2, col3 = st.columns([1, 1, 1])
@@ -129,7 +127,22 @@ def main():
         "Margin": f"{((d['price_sell'] - d['price_buy']) / d['price_buy'] * 100):.1f}%"
     } for d in illegal_drugs])
     
-    st.dataframe(drugs_df, use_container_width=True)
+    gb = GridOptionsBuilder.from_dataframe(drugs_df)
+    gb.configure_selection("single", use_checkbox=True)
+    grid_options = gb.build()
+
+    grid_response = AgGrid(
+        drugs_df,
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.SELECTION_CHANGED,
+        theme="streamlit",
+        height=300,
+    )
+
+    if grid_response.selected_rows:
+        st.session_state["selected_drug"] = grid_response.selected_rows[0]["Name"]
+
+    selected_drug = st.session_state["selected_drug"]
     
     # Selected drug analysis
     st.header(f"🔍 {selected_drug} Trading Analysis")
